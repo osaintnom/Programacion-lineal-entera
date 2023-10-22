@@ -43,38 +43,32 @@
 
 
 set P := {"A","B","C","D","E"};
-#{ read "tp2.2023.dat" as "<2s,3s,4s,5s,6s>" use 1 };
 
 set T := {1 .. 24};
-#{ read "tp2.2023.dat" as "<1s>" skip 1 };
+set T_ := {0 .. 24};
 
-param D[P*T] := read "tp2.2023_fresco.dat" as "n+";
+param D[T*P] := read "tp2.2023_fresco.dat" as "n+";
 param C := 370;
 
 var L[P*T] integer >= 0 <= 12;
-var U[P*T] integer >= 0;
-var S[P*T] integer >= 0;
+var S[P*T_] integer >= 0;
+# var U[P*T] integer >= 0;
 
-minimize costo_total: sum <p,t> in P cross T: U[p,t] * C;
 
-subto unidades: 
-    forall <p,t> in P cross T: 
-        U[p,t] == L[p,t] * 10;
+minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
 
-subto demanda:
-    forall <p,t> in P*T with t>1:
-        S[p,t] == S[p,t-1] + U[p,t] - D[p,t];
+# subto unidades: 
+#     forall <p,t> in P*T: 
+#         U[p,t] == L[p,t] * 10;
 
 subto stock:
-    forall <p,t> in P cross T:
-        S[p,t] >= 0;
+    forall <p,t> in P*T:
+        S[p,t] == S[p,t-1] + L[p,t] * 10 - D[t,p];
+
+subto stock_inicial:
+    forall <p> in P:
+        S[p,0] == 0;
 
 subto stock_max:
-    forall <t> in T with t>1:
-        sum <p,ti> in P*{1..t-1}: S[p,ti] <= 900;
-    #forall <p,t> in P*T:
-    #    S[p,t] <= 900;
-
-subto produccion_max:
-    forall <p,t> in P*T:
-        U[p,t] <= 120;
+    forall <t> in T:
+        sum <p> in P: S[p,t] <= 900;
