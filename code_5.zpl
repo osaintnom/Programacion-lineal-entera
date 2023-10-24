@@ -55,11 +55,12 @@ var ter[P*T] binary;
 var L[P*T] integer >= 0 <= 12;
 var S[P*T_] integer >= 0;
 var U[P*T] integer >= 0;
+var stock_m[T] integer >= 0;
 
-var F[P*T] integer >= 0;
+# var F[P*T] integer >= 0;
 
 
-minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 + F[p,t] * C_;
+minimize costo_total: sum <t> in T: stock_m[t];
 
 # subto unidades: 
 #     forall <p,t> in P*T: 
@@ -75,12 +76,18 @@ subto stock_inicial:
 
 subto stock_max:
     forall <t> in T:
-        sum <p> in P: S[p,t] <= 900;
+        sum <p> in P: S[p,t] <= stock_m[t];
 
 subto limite_unidades:
     forall <t> in T:
-        sum <p> in P: U[p,t] <= 300 + 200;
+        sum <p> in P: U[p,t] <= 300;
 
-subto tercerizar:
-     forall <p,t> in P*T:
-        F[p,t] >= 20 * ter[p,t];
+        
+# subto limite_uni_tercerizado:
+#     forall <t> in T:
+#         sum <p> in P: F[p,t] <= 200;
+
+
+# subto tercerizar:
+#      forall <p,t> in P*T:
+#         F[p,t] >= 20 * ter[p,t];

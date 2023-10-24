@@ -56,10 +56,10 @@ var L[P*T] integer >= 0 <= 12;
 var S[P*T_] integer >= 0;
 var U[P*T] integer >= 0;
 
-var F[P*T] integer >= 0;
+var F[P*T] integer >= 0; #unidaddes tercerizadas
 
 
-minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 + F[P*T] * C_;
+minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C + F[p,t] * C_;
 
 # subto unidades: 
 #     forall <p,t> in P*T: 
@@ -67,7 +67,7 @@ minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 + F[P*T] * C_;
 
 subto stock:
     forall <p,t> in P*T:
-        S[p,t] == S[p,t-1] + L[p,t] * 10 - D[t,p];
+        S[p,t] == S[p,t-1] + L[p,t] * 10 + F[p,t] - D[t,p];
 
 subto stock_inicial:
     forall <p> in P:
@@ -79,4 +79,8 @@ subto stock_max:
 
 subto limite_unidades:
     forall <t> in T:
-        sum <p> in P: U[p,t] <= 300 + 200;
+        sum <p> in P: U[p,t] <= 300;
+
+subto limite_uni_tercerizado:
+    forall <t> in T:
+        sum <p> in P: F[p,t] <= 200;
