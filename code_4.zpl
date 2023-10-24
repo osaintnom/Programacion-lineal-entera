@@ -50,16 +50,20 @@ set T_ := {0 .. 24};
 param D[T*P] := read "tp2.2023_fresco.dat" as "n+";
 param C := 370;
 
+param C_ := 540;
+
 var L[P*T] integer >= 0 <= 12;
 var S[P*T_] integer >= 0;
-# var U[P*T] integer >= 0;
+var U[P*T] integer >= 0;
+
+var F[P*T] integer >= 0;
 
 
-minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
+minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 + F[P*T] * C_;
 
 # subto unidades: 
 #     forall <p,t> in P*T: 
-#         U[p,t] == L[p,t] * 10;
+#         U[p,t] == L[p,t] * 10 + F[p,t];
 
 subto stock:
     forall <p,t> in P*T:
@@ -72,3 +76,11 @@ subto stock_inicial:
 subto stock_max:
     forall <t> in T:
         sum <p> in P: S[p,t] <= 900;
+
+subto limite_unidades:
+    forall <t> in T:
+        sum <p> in P: U[p,t] <= 300 + 200;
+
+subto tercerizar:
+     forall <p,t> in P*T:
+        F[p,t] >= 20 * L[p,t];

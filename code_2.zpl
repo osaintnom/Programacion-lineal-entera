@@ -72,3 +72,7 @@ subto stock_inicial:
 subto stock_max:
     forall <t> in T:
         sum <p> in P: S[p,t] <= 900;
+
+subto limite_unidades:
+    forall <t> in T:
+        sum <p> in P: U[p,t] <= 300;
