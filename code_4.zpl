@@ -82,9 +82,9 @@ subto limite_unidades:
         (sum <p> in P: U[p,t]) <= 300;
 
 subto limite_uni_tercerizado:
-    forall <t> in T:
-        (sum <p> in P: F[p,t]) <= 200 * ter[p,t];
-        #esta mal
+    forall <p_,t> in P*T:
+        (sum <p> in P: F[p,t]) <= 200 *ter[p_,t];
+        # esta mal
 
 subto tercerizar_min:
     forall <p,t> in P*T:
