@@ -75,4 +75,5 @@ subto stock_max:
 
 subto limite_unidades:
     forall <t> in T:
-        sum <p> in P: U[p,t] <= 300;
+        (sum <p> in P: L[p,t] * 10) <= 300;
+        # sum <p> in P: L[p,t] * 10 <= 300;
