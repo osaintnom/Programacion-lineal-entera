@@ -1,0 +1,188 @@
+---
+title: "Trabajo Practico 2"
+author: 
+    - "Zoe Borrone"
+    - "Luca Mazzarello"
+    - "Ignacio Pardo"
+    - "Olivier Saint-Nom"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Introducción
+
+El objetivo del trabajo práctico es plantear un modelo de lot sizing para planificar la producción en una fábrica. La planificación es mensual, y consiste en determinar qué cantidad fabricar de cada producto en cada mes, durante los próximos 24 meses. Se tienen cinco productos y se tiene una estimación de la demanda por producto y mes Suponemos que las cantidades demandadas de todos los productos están en las mismas unidades. La planificación está sujeta a las siguientes restricciones:
+
+1.  Cada producto tiene una capacidad de producción máxima de 120 unidades por mes.
+2.  Los productos se deben fabricar en lotes de 10 unidades cada uno. Es decir, la producción de cada producto en cada mes debe ser un número perteneciente al conjunto {0, 10, 20, 30, ..., 120}.
+3.  El depósito tiene una capacidad total de 900 unidades, entre todos los productos. Se puede guardar stock fabricado en un mes para cubrir la demanda de los meses siguientes.
+4.  Al inicio de la planificación no se tiene stock inicial de ningún producto.
+5.  La producción de una unidad de cada producto tiene un costo de \$ 370 (el mismo costo por unidad para todos los productos).
+
+El objetivo de la planificación es determinar qué cantidad fabricar de cada producto en cada mes, de modo tal de cumplir la demanda minimizando los costos de fabricación.
+
+## Definiciones de la planificación
+
+$\text{ Producto}:P = {A, B, C, D, E, F}$
+
+$\text{ Tiempo}:T = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}$
+
+$\text{ Demanda del Producto } P \text{ en el Tiempo } T: D_{pt}$
+
+$\text{ Lotes fabricados del Producto } P \text{ en el Tiempo } T :L\_{pt}$
+
+$$
+L_{pt} \in \mathbb{Z}, \forall p \in P, \forall t \in T \\
+L_{pt} >= 0 \\
+L_{pt} <= 12 \\
+$$ 
+
+$\text{ Cantidad de unidades del producto } P \text{ en el Tiempo } T: U_{pt}$ 
+
+$$
+U_{pt} = L_{pt} * 10 \\
+$$ 
+
+$\text{ Sumatoria de } U_{pt} \text{ para cada } P \text{ en el Tiempo } T <= 120 : U_t$
+
+$$
+U_t = \sum_{p \in P} U_{pt} \leq 120 \\
+min \sum_{p \in P} \sum_{t \in T} U_{pt} * 370
+$$
+
+$\text{ Stock del Producto } P \text{ en el Tiempo } T : S_{pt}$ 
+
+$$
+S_{pt} = S_{p(t-1)} + U_{pt} - D_{pt} \\
+S_{pt} >= 0 \\
+\sum_{t \in T} \sum_{p \in P} S_{pt} <= 900 \\
+$$
+
+## Ejercicio 1
+
+El ejercicio 1 consiste en plantear un modelo de programación lineal entera mixta para este problema, con el objetivo de minimizar los costos totales de producción. Para ello, definimos las variables de decisión, la función objetivo y las restricciones del modelo:
+
+### Variables de decisión
+
+```{zpl}
+set P := {"A","B","C","D","E"};
+
+set T := {1 .. 24};
+set T_ := {0 .. 24};
+
+param D[T*P] := read "tp2.2023_fresco.dat" as "n+";
+param C := 370;
+
+var L[P*T] integer >= 0 <= 12;
+var S[P*T_] integer >= 0;
+```
+
+### Función objetivo
+
+```{zpl}
+minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
+```
+
+### Restricciones
+
+```{zpl}
+minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
+```
+
+## Ejercicio 2
+
+En el ejercicio 2, se nos suma una nueva restriccion que es que la produccion total de todos los productos no debe superar las 300 unidades mensuales. Para ello, definimos una nueva restriccion pero mantenemos tanto las función objetivo como las variables de decisión.
+
+### Nueva Restricción
+
+```{zpl}
+subto limite_unidades:
+    forall <t> in T:
+        (sum <p> in P: L[p,t] * 10) <= 300;
+```
+
+Al correr el codigo vimos que era infactible cumplir con toda la demanda tras agregar esta restriccion
+
+## Ejercicio 3
+
+Sumandole a la restriccion del ejercicio 2, ahora se nos agrega que podemos tercerizar la fabricacion de hasta 200 unidades por mes, con un costo de \$ 540 por unidad. Para ello, cambiamos nuestra función objetivo y agregamos a nuestro modelo, teniendo en cuenta que debemos cumplir toda la demanda de cada mes:
+
+### Nuevas variables de decision
+
+```{zpl}
+var U[P*T] integer >= 0;
+var F[P*T] integer >= 0; #unidaddes tercerizadas
+```
+
+Creamos una variable para almacenar las unidades producidas por la fabrica y otra para almacenar las unidades tercerizadas.
+
+### Nueva función objetivo
+
+```{zpl}
+minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C + F[p,t] * 540;
+```
+
+Agregamos a la funcion objetivo la suma de las unidades tercerizadas por el costo de tercerizarlas.
+
+### Nueva restricción
+
+```{zpl}
+subto limite_uni_tercerizado:
+    forall <t> in T:
+        (sum <p> in P: F[p,t]) <= 200;
+```
+
+Agregamos la restriccion de que la suma de las unidades tercerizadas no puede superar las 200 unidades por mes.
+
+El valor objetivo nos queda \$3128900
+
+## Ejercicio 4
+
+Ahora se nos agrega que si tercerizamos la fabricacion de un producto en un mes, se deben solicitar al menos 20 unidades de ese producto en ese mes. Para ello, agregamos al modelo una nueva variable de decisión y dos nuevas restricciones, manteniendo la función objetivo:
+
+### Nuevas variables de decisión
+
+```{zpl}
+var ter[P*T] binary; #flag de si lo tercerizo o no
+```
+
+EXPLICAR MEJOR
+
+### Nuevas restricciones
+
+```{zpl}
+subto limite_uni_tercerizado:
+    forall <p_,t> in P*T:
+        (sum <p> in P: F[p,t]) <= 200 * ter[p_,t];
+        # esta mal
+
+subto tercerizar_min:
+    forall <p,t> in P*T:
+        F[p,t] >= 20 * ter[p,t];
+```
+
+EXPLICAR EL USO DE p_.
+
+En este caso el costo total pasa a ser de \$3128900
+
+## Ejercicio 5
+
+El límite de 900 unidades en stock en el depósito es demasiado costoso y necesitamos reducir el espacio disponible en el depósito. Para ello, modificamos el modelo agregando la variable de decision que tambien será la funcion objetivo del ejercicio:
+
+### Nueva variable de decisión
+
+```{zpl}
+var stock_m >= 0;
+```
+
+### Nueva función objetivo
+
+```{zpl}
+minimize stock_maximo_minimo: stock_m;
+```
+
+Como resultado obtenemos que la mínima capacidad del depósito que hace que el problema sea factible sea 705
+
+¿Se puede buscar este valor sin hacer búsqueda binaria manualmente?
+
+COMPLETARRR

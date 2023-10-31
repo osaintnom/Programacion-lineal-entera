@@ -88,7 +88,6 @@ subto limite_uni_tercerizado:
         (sum <p> in P: F[p,t]) <= 200 *ter[p_,t];
         # esta mal
 
-
 subto tercerizar:
      forall <p,t> in P*T:
         F[p,t] >= 20 * ter[p,t];
