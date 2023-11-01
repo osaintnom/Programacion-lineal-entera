@@ -56,7 +56,7 @@ var L[P*T] integer >= 0 <= 12;
 var S[P*T_] integer >= 0;
 var U[P*T] integer >= 0;
 
-var F[P*T] >= 0; #unidaddes tercerizadas
+var F[P*T] >= 0; #unidades tercerizadas
 
 
 minimize costo_total: sum <p,t> in P*T: (L[p,t] * 10 * C + F[p,t] * C_);

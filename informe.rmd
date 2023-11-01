@@ -11,13 +11,13 @@ output: pdf_document
 
 ## Introducción
 
-El objetivo del trabajo práctico es plantear un modelo de lot sizing para planificar la producción en una fábrica. La planificación es mensual, y consiste en determinar qué cantidad fabricar de cada producto en cada mes, durante los próximos 24 meses. Se tienen cinco productos y se tiene una estimación de la demanda por producto y mes Suponemos que las cantidades demandadas de todos los productos están en las mismas unidades. La planificación está sujeta a las siguientes restricciones:
+El objetivo del trabajo práctico es plantear un modelo de lot sizing para planificar la producción en una fábrica. La planificación es mensual, y consiste en determinar qué cantidad fabricar de cada producto en cada mes, durante los próximos 24 meses. Se tienen cinco productos y se tiene una estimación de la demanda por producto y mes. Suponemos que las cantidades demandadas de todos los productos están en las mismas unidades. La planificación está sujeta a las siguientes restricciones:
 
 1.  Cada producto tiene una capacidad de producción máxima de 120 unidades por mes.
 2.  Los productos se deben fabricar en lotes de 10 unidades cada uno. Es decir, la producción de cada producto en cada mes debe ser un número perteneciente al conjunto {0, 10, 20, 30, ..., 120}.
 3.  El depósito tiene una capacidad total de 900 unidades, entre todos los productos. Se puede guardar stock fabricado en un mes para cubrir la demanda de los meses siguientes.
 4.  Al inicio de la planificación no se tiene stock inicial de ningún producto.
-5.  La producción de una unidad de cada producto tiene un costo de \$ 370 (el mismo costo por unidad para todos los productos).
+5.  La producción de una unidad de cada producto tiene un costo de \$370 (el mismo costo por unidad para todos los productos).
 
 El objetivo de la planificación es determinar qué cantidad fabricar de cada producto en cada mes, de modo tal de cumplir la demanda minimizando los costos de fabricación.
 
@@ -35,13 +35,13 @@ $$
 L_{pt} \in \mathbb{Z}, \forall p \in P, \forall t \in T \\
 L_{pt} >= 0 \\
 L_{pt} <= 12 \\
-$$ 
+$$
 
-$\text{ Cantidad de unidades del producto } P \text{ en el Tiempo } T: U_{pt}$ 
+$\text{ Cantidad de unidades del producto } P \text{ en el Tiempo } T: U_{pt}$
 
 $$
 U_{pt} = L_{pt} * 10 \\
-$$ 
+$$
 
 $\text{ Sumatoria de } U_{pt} \text{ para cada } P \text{ en el Tiempo } T <= 120 : U_t$
 
@@ -50,7 +50,7 @@ U_t = \sum_{p \in P} U_{pt} \leq 120 \\
 min \sum_{p \in P} \sum_{t \in T} U_{pt} * 370
 $$
 
-$\text{ Stock del Producto } P \text{ en el Tiempo } T : S_{pt}$ 
+$\text{ Stock del Producto } P \text{ en el Tiempo } T : S_{pt}$
 
 $$
 S_{pt} = S_{p(t-1)} + U_{pt} - D_{pt} \\
@@ -77,6 +77,8 @@ var L[P*T] integer >= 0 <= 12;
 var S[P*T_] integer >= 0;
 ```
 
+En el caso de la variable T, esta definida de 1 a 24 porque el transcurso del tiempo son 2 años, es decir, 24 meses. Luego la variable T_ esta definida de 0 a 24 porque se necesita el stock inicial, es decir, el stock del mes anterior al primero.
+
 ### Función objetivo
 
 ```{zpl}
@@ -86,8 +88,20 @@ minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
 ### Restricciones
 
 ```{zpl}
-minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
+subto stock:
+    forall <p,t> in P*T:
+        S[p,t] == S[p,t-1] + L[p,t] * 10 - D[t,p];
+
+subto stock_inicial:
+    forall <p> in P:
+        S[p,0] == 0;
+
+subto stock_max:
+    forall <t> in T:
+        sum <p> in P: S[p,t] <= 900;
 ```
+
+Como solución obtenemos que el costo total es de \$ 2904500
 
 ## Ejercicio 2
 
@@ -101,7 +115,7 @@ subto limite_unidades:
         (sum <p> in P: L[p,t] * 10) <= 300;
 ```
 
-Al correr el codigo vimos que era infactible cumplir con toda la demanda tras agregar esta restriccion
+Al correr el código vimos que era infactible cumplir con toda la demanda tras agregar esta restriccion
 
 ## Ejercicio 3
 
@@ -111,7 +125,7 @@ Sumandole a la restriccion del ejercicio 2, ahora se nos agrega que podemos terc
 
 ```{zpl}
 var U[P*T] integer >= 0;
-var F[P*T] integer >= 0; #unidaddes tercerizadas
+var F[P*T] integer >= 0; # unidaddes tercerizadas
 ```
 
 Creamos una variable para almacenar las unidades producidas por la fabrica y otra para almacenar las unidades tercerizadas.
@@ -143,10 +157,10 @@ Ahora se nos agrega que si tercerizamos la fabricacion de un producto en un mes,
 ### Nuevas variables de decisión
 
 ```{zpl}
-var ter[P*T] binary; #flag de si lo tercerizo o no
+var ter[P*T] binary; 
 ```
 
-EXPLICAR MEJOR
+esta nueva variable indica si se terceriza (ter[p,t] = 1) o no (ter[p,t] = 0) la fabricacion de un producto en un mes.
 
 ### Nuevas restricciones
 
@@ -154,14 +168,13 @@ EXPLICAR MEJOR
 subto limite_uni_tercerizado:
     forall <p_,t> in P*T:
         (sum <p> in P: F[p,t]) <= 200 * ter[p_,t];
-        # esta mal
 
 subto tercerizar_min:
     forall <p,t> in P*T:
         F[p,t] >= 20 * ter[p,t];
 ```
 
-EXPLICAR EL USO DE p_.
+EXPLICAR EL USO DE p\_.
 
 En este caso el costo total pasa a ser de \$3128900
 
