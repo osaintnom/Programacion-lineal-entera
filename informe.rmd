@@ -174,9 +174,9 @@ subto tercerizar_min:
         F[p,t] >= 20 * ter[p,t];
 ```
 
-EXPLICAR EL USO DE p\_.
+Para esta nueva retriccion hemos necesitado un iterador mas para poder recorrer la variable ter (p_). Esto fue porque para cada proudcto tengo que ver si la variable bianria ter debe ser prendida o apagada, y no era posible usar p porque es el indice de la sumatoria. 
 
-En este caso el costo total pasa a ser de \$3128900
+En este caso el *costo total pasa a ser de \$3128900*
 
 ## Ejercicio 5
 
@@ -194,7 +194,7 @@ var stock_m >= 0;
 minimize stock_maximo_minimo: stock_m;
 ```
 
-Como resultado obtenemos que la mínima capacidad del depósito que hace que el problema sea factible sea 705
+Como resultado obtenemos que la mínima capacidad del depósito que hace que el problema sea factible es 705 (minima capazidad maxima del deposito)
 
 ¿Se puede buscar este valor sin hacer búsqueda binaria manualmente?
 
