@@ -11,7 +11,7 @@ output: pdf_document
 
 ## Introducción
 
-El objetivo del trabajo práctico es plantear un modelo de lot sizing para planificar la producción en una fábrica. La planificación es mensual, y consiste en determinar qué cantidad fabricar de cada producto en cada mes, durante los próximos 24 meses. Se tienen cinco productos y se tiene una estimación de la demanda por producto y mes. Suponemos que las cantidades demandadas de todos los productos están en las mismas unidades. La planificación está sujeta a las siguientes restricciones:
+El objetivo del trabajo práctico es plantear un modelo de _lot sizing_ para planificar la producción en una fábrica. La planificación es mensual, y consiste en determinar qué cantidad fabricar de cada producto en cada mes, durante los próximos 24 meses. Se tienen cinco productos y se tiene una estimación de la demanda por producto y mes. Suponemos que las cantidades demandadas de todos los productos están en las mismas unidades. La planificación está sujeta a las siguientes restricciones:
 
 1.  Cada producto tiene una capacidad de producción máxima de 120 unidades por mes.
 2.  Los productos se deben fabricar en lotes de 10 unidades cada uno. Es decir, la producción de cada producto en cada mes debe ser un número perteneciente al conjunto {0, 10, 20, 30, ..., 120}.
@@ -23,13 +23,13 @@ El objetivo de la planificación es determinar qué cantidad fabricar de cada pr
 
 ## Definiciones de la planificación
 
-$\text{ Producto}:P = {A, B, C, D, E, F}$
+$\text{Producto}:P = {A, B, C, D, E, F}$
 
-$\text{ Tiempo}:T = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}$
+$\text{Tiempo}:T = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}$
 
-$\text{ Demanda del Producto } P \text{ en el Tiempo } T: D_{pt}$
+$\text{Demanda del Producto} P \text{en el Tiempo} T: D_{pt}$
 
-$\text{ Lotes fabricados del Producto } P \text{ en el Tiempo } T :L\_{pt}$
+$\text{Lotes fabricados del Producto} P \text{en el Tiempo} T :L\_{pt}$
 
 $$
 L_{pt} \in \mathbb{Z}, \forall p \in P, \forall t \in T \\
@@ -37,20 +37,20 @@ L_{pt} >= 0 \\
 L_{pt} <= 12 \\
 $$
 
-$\text{ Cantidad de unidades del producto } P \text{ en el Tiempo } T: U_{pt}$
+$\text{Cantidad de unidades del producto} P \text{en el Tiempo} T: U_{pt}$
 
 $$
 U_{pt} = L_{pt} * 10 \\
 $$
 
-$\text{ Sumatoria de } U_{pt} \text{ para cada } P \text{ en el Tiempo } T <= 120 : U_t$
+$\text{Sumatoria de} U_{pt} \text{para cada} P \text{en el Tiempo} T <= 120 : U_t$
 
 $$
 U_t = \sum_{p \in P} U_{pt} \leq 120 \\
 min \sum_{p \in P} \sum_{t \in T} U_{pt} * 370
 $$
 
-$\text{ Stock del Producto } P \text{ en el Tiempo } T : S_{pt}$
+$\text{Stock del Producto} P \text{en el Tiempo} T : S_{pt}$
 
 $$
 S_{pt} = S_{p(t-1)} + U_{pt} - D_{pt} \\
@@ -85,7 +85,18 @@ En el caso de la variable T, esta definida de 1 a 24 porque el transcurso del ti
 minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C;
 ```
 
+Buscamos minimizar el costo total de producción, que es la suma de la cantidad de lotes fabricados por el costo de fabricar cada lote (10 unidades por lote, el costo de fabricar una unidad es de \$ 370).
+
 ### Restricciones
+
+
+Las restricciones que planteamos son las siguientes:
+
+- Stock: el stock del producto en el tiempo $t$ es igual al stock del producto en el tiempo $t-1$ más la cantidad de lotes fabricados en el tiempo $t$ menos la demanda del producto en el tiempo $t$.
+
+- Stock inicial: el stock inicial de cada producto es $0$.
+
+- Stock máximo: la suma del stock de todos los productos en el tiempo $t$ no puede superar las $900$ unidades.
 
 ```{zpl}
 subto stock:
@@ -109,13 +120,16 @@ En el ejercicio 2, se nos suma una nueva restriccion que es que la produccion to
 
 ### Nueva Restricción
 
+
+La restriccion impuesta es que la suma de las unidades producidas por cada producto no debe superar las 300 unidades por mes.
+
 ```{zpl}
 subto limite_unidades:
     forall <t> in T:
         (sum <p> in P: L[p,t] * 10) <= 300;
 ```
 
-Al correr el código vimos que era infactible cumplir con toda la demanda tras agregar esta restriccion
+Al correr el código vimos que era infactible cumplir con toda la demanda tras agregar esta restriccion.
 
 ## Ejercicio 3
 
@@ -123,30 +137,30 @@ Sumandole a la restriccion del ejercicio 2, ahora se nos agrega que podemos terc
 
 ### Nuevas variables de decision
 
+
+Creamos una variable para almacenar las unidades producidas por la fabrica y otra para almacenar las unidades tercerizadas.
+
 ```{zpl}
 var U[P*T] integer >= 0;
 var F[P*T] integer >= 0; # unidaddes tercerizadas
 ```
 
-Creamos una variable para almacenar las unidades producidas por la fabrica y otra para almacenar las unidades tercerizadas.
-
 ### Nueva función objetivo
+
+Agregamos a la funcion objetivo la suma de las unidades tercerizadas por el costo de tercerizarlas.
 
 ```{zpl}
 minimize costo_total: sum <p,t> in P*T: L[p,t] * 10 * C + F[p,t] * 540;
 ```
-
-Agregamos a la funcion objetivo la suma de las unidades tercerizadas por el costo de tercerizarlas.
-
 ### Nueva restricción
+
+Agregamos la restriccion de que la suma de las unidades tercerizadas no puede superar las 200 unidades por mes.
 
 ```{zpl}
 subto limite_uni_tercerizado:
     forall <t> in T:
         (sum <p> in P: F[p,t]) <= 200;
 ```
-
-Agregamos la restriccion de que la suma de las unidades tercerizadas no puede superar las 200 unidades por mes.
 
 El valor objetivo nos queda \$3128900
 
@@ -160,7 +174,7 @@ Ahora se nos agrega que si tercerizamos la fabricacion de un producto en un mes,
 var ter[P*T] binary; 
 ```
 
-esta nueva variable indica si se terceriza (ter[p,t] = 1) o no (ter[p,t] = 0) la fabricacion de un producto en un mes.
+Esta nueva variable indica si se terceriza (ter[p,t] = 1) o no (ter[p,t] = 0) la fabricacion de un producto en un mes.
 
 ### Nuevas restricciones
 
@@ -174,7 +188,7 @@ subto tercerizar_min:
         F[p,t] >= 20 * ter[p,t];
 ```
 
-Para esta nueva retriccion hemos necesitado un iterador mas para poder recorrer la variable ter (p_). Esto fue porque para cada proudcto tengo que ver si la variable bianria ter debe ser prendida o apagada, y no era posible usar p porque es el indice de la sumatoria. 
+Para esta nueva retricción, si ter[p,t] = 0, entonces F[p,t] = 0, por lo que no se terceriza la fabricacion de ese producto en ese mes. Si ter[p,t] = 1, entonces F[p,t] >= 20, por lo que se terceriza la fabricacion de ese producto en ese mes y se deben fabricar al menos 20 unidades de ese producto en ese mes. Ademas, la suma de los productos tercerizados no puede superar las 200 unidades por mes.
 
 En este caso el *costo total pasa a ser de \$3128900*
 
