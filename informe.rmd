@@ -212,4 +212,4 @@ Como resultado obtenemos que la mínima capacidad del depósito que hace que el 
 
 ¿Se puede buscar este valor sin hacer búsqueda binaria manualmente?
 
-COMPLETARRR
+Es posible y para ello deberiamos hacer un modelo de programacion lineal entera mixta que busque el valor de la capacidad del deposito que hace que el problema sea factible. Para ello, deberiamos agregar una nueva variable de decision que sea la capacidad del deposito y una nueva restriccion que diga que la capacidad del deposito debe ser mayor o igual a la capacidad del deposito minima que hace que el problema sea factible. Luego, la funcion objetivo deberia ser minimizar la capacidad maxima del deposito.
