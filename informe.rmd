@@ -23,39 +23,46 @@ El objetivo de la planificación es determinar qué cantidad fabricar de cada pr
 
 ## Definiciones de la planificación
 
-$\text{Producto}:P = {A, B, C, D, E, F}$
+- $\text{Producto}:P = {A, B, C, D, E, F}$
 
-$\text{Tiempo}:T = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}$
+- $\text{Tiempo}:T = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}$
 
-$\text{Demanda del Producto} P \text{en el Tiempo} T: D_{pt}$
+- $\text{Demanda del Producto } P \text{ en el Tiempo } T: D_{pt}$
 
-$\text{Lotes fabricados del Producto} P \text{en el Tiempo} T :L\_{pt}$
-
-$$
-L_{pt} \in \mathbb{Z}, \forall p \in P, \forall t \in T \\
-L_{pt} >= 0 \\
-L_{pt} <= 12 \\
-$$
-
-$\text{Cantidad de unidades del producto} P \text{en el Tiempo} T: U_{pt}$
+- $\text{Lotes fabricados del Producto } P \text{ en el Tiempo } T :L\_{pt}$
 
 $$
-U_{pt} = L_{pt} * 10 \\
+    \begin{aligned}
+        L_{pt} & \in \mathbb{Z}, \forall p \in P, \forall t \in T \\
+        L_{pt} & >= 0 \\
+        L_{pt} & <= 12 \\
+    \end{aligned}
 $$
 
-$\text{Sumatoria de} U_{pt} \text{para cada} P \text{en el Tiempo} T <= 120 : U_t$
+$\text{Cantidad de unidades del producto } P \text{ en el Tiempo } T: U_{pt}$
 
 $$
-U_t = \sum_{p \in P} U_{pt} \leq 120 \\
-min \sum_{p \in P} \sum_{t \in T} U_{pt} * 370
+    U_{pt} = L_{pt} * 10
 $$
 
-$\text{Stock del Producto} P \text{en el Tiempo} T : S_{pt}$
+$\text{Sumatoria de } U_{pt} \text{ para cada } P \text{ en el Tiempo } T <= 120 : U_t$
 
 $$
-S_{pt} = S_{p(t-1)} + U_{pt} - D_{pt} \\
-S_{pt} >= 0 \\
-\sum_{t \in T} \sum_{p \in P} S_{pt} <= 900 \\
+    \begin{aligned}
+        U_t &= \sum_{p \in P} \\ 
+        U_{pt} &\leq 120 \\
+        min \sum_{p \in P} &\sum_{t \in T} U_{pt} * 370
+    \end{aligned}
+$$
+
+$\text{Stock del Producto } P \text{ en el Tiempo } T : S_{pt}$
+
+$$
+    \begin{aligned}
+        S_{pt} &= S_{p(t-1)} + U_{pt} - D_{pt} \\
+        S_{pt} &>= 0 \\
+        \sum_{t \in T} \sum_{p \in P} & S_{pt} <= 900 \\
+    \end{aligned}
 $$
 
 ## Ejercicio 1
