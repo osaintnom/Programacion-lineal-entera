@@ -16,6 +16,7 @@ The objective of the planning is to determine the quantity to manufacture for ea
 4. Further suppose that we cannot outsource the manufacturing of any amount of each product arbitrarily. Instead, if the manufacturing of a product is outsourced in a month, at least 20 units of that product must be ordered in that month. How does the total cost change in this case?
 5. The limit of 900 units in stock in the warehouse is too costly, and we need to reduce the available space in the warehouse. What is the minimum capacity of the warehouse that makes the problem feasible? Can this value be found without manually performing binary search?
 
-Please refer to the practical work for further details and instructions on completing each task.
+For knowing the answer read de REPORT (it is in Spanish).
+
 
 
